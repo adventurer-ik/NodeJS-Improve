@@ -1,5 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const user = require("./models/user");
+const User = require("./models/user");
 
 mongoose.connect("mongodb://localhost/shopping-demo", {
   useNewUrlParser: true,
@@ -10,6 +12,31 @@ db.on("error", console.error.bind(console, "connection error:"));
 
 const app = express();
 const router = express.Router();
+
+router.post("/users", async (req, res) => {
+  const { nickname, email, password, confirmPassword } = req.body;
+
+  if (password !== confirmPassword) {
+    res.status(400).send({
+      errorMessage: "패스워드가 다릅니다.",
+    });
+    return;
+  }
+  const existUser = await User.find({
+    $or: [{ email }, { nickname }],
+  });
+  if (existUser.length) {
+    res.status(400).send({
+      errorMessage: "이미 가입된 이메일 또는 닉네임이 있습니다.",
+    });
+    return;
+  }
+
+  const user = new User({ email, nickname, password });
+  await user.save();
+
+  res.status(201).send({});
+});
 
 app.use("/api", express.urlencoded({ extended: false }), router);
 app.use(express.static("assets"));
