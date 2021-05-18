@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const User = require("./models/user");
+const authMiddleware = require("./middlewares/auth-middleware");
 
 mongoose.connect("mongodb://localhost/shopping-demo", {
   useNewUrlParser: true,
@@ -50,6 +51,10 @@ router.post("/auth", async (req, res) => {
 
   const token = jwt.sign({ userId: user.userId }, "ddobab");
   res.send({ token });
+});
+
+router.get("/users/me", authMiddleware, async (req, res) => {
+  res.status(400).send({});
 });
 
 app.use("/api", express.urlencoded({ extended: false }), router);
