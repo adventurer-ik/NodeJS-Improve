@@ -54,6 +54,7 @@ router.post("/auth", async (req, res) => {
 });
 
 router.get("/users/me", authMiddleware, async (req, res) => {
+  console.log(res.locals);
   res.status(400).send({});
 });
 
